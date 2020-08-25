@@ -1,0 +1,43 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'java'
+import java.util.List;
+import groovy.json.JsonSlurper;
+import org.apache.tools.ant.taskdefs.condition.Os;
+
+/**
+* @param httpResponse is the HTTP response from JIRA.
+* @param key is the key from the JSON formatted response from JIRA.
+* @return retVal which is short for 'Return Value' of the corresponding key.
+*/
+def analyzeDataset(String httpResponse, String key){
+  JsonSlurper output = new JsonSlurper();
+  def jsonResults = output.parseText(httpResponse);
+  def retVal = "";
+
+  switch (key){
+    case 'name':
+      retVal = jsonResults.fields.issuetype.name;
+      break;
+    case 'description':
+      retVal = jsonResults.fields.issuetype.description;
+      break;
+    }
+  return retVal;
+}
+
+task accessJiraApi() {
+  description "Access JIRA API - Issues"
+  def JIRA_AUTH_KEY = "${svnUsername}:${svnPassword}";
+  doLast {
+    try {
+      def apiOutput = ["curl","--silent","-u","${JIRA_AUTH_KEY}","-X","GET","-H","Content-Type: application/json","https://jira.fntgrp.com/rest/api/2/issue/" + "${jiraID}","-k"].execute()
+
+      def httpResponse = apiOutput.text;
+      println "Name: " + analyzeDataset(httpResponse, "name");
+      println "Description: " + analyzeDataset(httpResponse, "description");
+    } catch (e) {
+      println e.message;
+    }
+  }
+}
