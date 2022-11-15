@@ -31,7 +31,7 @@ task accessJiraApi() {
   def JIRA_AUTH_KEY = "${svnUsername}:${svnPassword}";
   doLast {
     try {
-      def apiOutput = ["curl","--silent","-u","${JIRA_AUTH_KEY}","-X","GET","-H","Content-Type: application/json","https://jira.fntgrp.com/rest/api/2/issue/" + "${jiraID}","-k"].execute()
+      def apiOutput = ["curl","--silent","-u","${JIRA_AUTH_KEY}","-X","GET","-H","Content-Type: application/json","https://jira.mycompany.com/rest/api/2/issue/" + "${jiraID}","-k"].execute()
 
       def httpResponse = apiOutput.text;
       println "Name: " + analyzeDataset(httpResponse, "name");
